@@ -1,0 +1,13 @@
+{
+	"name": "FizzBuzz",
+	"version": "0.0.1",
+	"description": "These are the dependencies for the FizzBuzz exercice. Mostly test runners :)",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/rodrigoi/dojo.git"
+	},
+	"devDependencies": {
+		"chai": "*",
+		"mocha": "*"
+	}
+}
