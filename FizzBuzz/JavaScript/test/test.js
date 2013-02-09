@@ -1,7 +1,7 @@
 var chai = require("chai");
 var should = chai.should();
 
-var patch = require("../monkeypatch");
+require("../monkeypatch");
 
 chai.Assertion.includeStack = true;
 
