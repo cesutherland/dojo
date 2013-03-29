@@ -13,13 +13,19 @@ describe("FizzBuzz", function(){
 	it("should return Fizz for powers of three", function(){
 		var number = 3;
 		number.toString().should.equal("Fizz");
+		number = 9;
+		number.toString().should.equal("Fizz");
 	});
 	it("should return Buzz for powers of five", function(){
 		var number = 5;
 		number.toString().should.equal("Buzz");
+		number = 10;
+		number.toString().should.equal("Buzz");
 	});
 	it("should return FizzBuzz for powers of three and five", function(){
 		var number = 15;
+		number.toString().should.equal("FizzBuzz");
+		number = 60;
 		number.toString().should.equal("FizzBuzz");
 	});
 })
