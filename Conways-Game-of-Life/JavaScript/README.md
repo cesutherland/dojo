@@ -14,4 +14,4 @@ In addition to the basic game rules, this user interface should implement the fo
 - Save patterns to Local Storage.
 
 And the user should set the initial state of the game's world by selecting the initial state of any cell by clicking it. Clicking a cell toggles the state of the cell.
-The application should warn the user if initial pattern will not survive the fist generation.
+The application should warn the user if the initial pattern will not survive the fist generation.
