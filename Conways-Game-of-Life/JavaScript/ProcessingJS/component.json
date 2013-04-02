@@ -1,0 +1,14 @@
+{
+  "name": "ProcessingJS",
+  "version": "0.0.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
+  "dependencies": {
+    "processingjs": "~1.4.0",
+    "jquery": "~1.9.1",
+    "bootstrap": "~2.3.1"
+  }
+}
