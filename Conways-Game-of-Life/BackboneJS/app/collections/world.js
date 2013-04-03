@@ -7,6 +7,9 @@ if (typeof module !== "undefined" && module.exports) {
 	Application = require("../models/cell");
 
 	module.exports = Application;
+	module.exports.use = function(Math){
+		Math = Math
+	}
 }
 
 (function(){
@@ -19,8 +22,24 @@ if (typeof module !== "undefined" && module.exports) {
 			[-1,  0],          [1,  0],
 			[-1,  1], [0,  1], [1,  1]
 		],
-		width: 0,
-		height: 0,
+		initialize: function(models, options){
+			options || (options = {});
+			this.width = options.width || 0;
+			this.height = options.height || 0;
+
+			if(!models) {
+				for (var y = 0; y < this.height; y++) {
+					for (var x = 0; x < this.width; x++){
+						this.add(new Application.Cell({ x: x, y: y }));
+					}
+				};
+			}
+		},
+		randomize: function(){
+			this.each(function(model){
+				model.set("alive", !!Math.round(Math.random() * 1));
+			});
+		},
 		liveNeighbours: function(cell) {
 			var x = cell.get("x");
 			var y = cell.get("y");
@@ -38,6 +57,11 @@ if (typeof module !== "undefined" && module.exports) {
 				return neighbour ? neighbour.get("alive") : false;
 			}, this);
 			return livingNeighbours.length;
+		},
+		clear: function(){
+			this.each(function(cell){
+				cell.set("alive", false);
+			}, this);
 		}
 	});
 

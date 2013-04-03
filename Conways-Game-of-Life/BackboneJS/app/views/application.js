@@ -6,75 +6,107 @@ if (typeof module !== "undefined" && module.exports) {
 	var Backbone = Backbone || require("backbone");
 	Backbone.$ = jQuery;
 
-	Konami = function(){}
+	_.extend(Application, require("../collections/storage"));
+
+	_.extend(Application, require("./generationCounter"));
+	_.extend(Application, require("./world"));
+	_.extend(Application, require("./controls"));
+	_.extend(Application, require("./dialogs/save"));
+	_.extend(Application, require("./dialogs/load"));
 
 	module.exports = Application;
+
+	Konami = function(){}
 }
 
-$(function(){
+(function(){
 	"use strict";
 
 	Application.AppView = Backbone.View.extend({
 		el: ".container",
-		generation: 0,
+		children: [],
+		dialogs: [],
+		storage: null,
 		events: {
-			"click #start": "onStart",
-			"click #stop": "onStop",
-			"click #next": "onNext",
-			"click #clear": "onClear",
-			"submit #setTickForm": "onSetTickFromSubmit",
-			"click #save": "onSave",
-			"click #load": "onLoad",
-			"click #randomize": "onRandomize"
+			"submit #setTickForm": "onSetTickFromSubmit"
 		},
-		initialize: function(){
-			var konami = new Konami(function(){
-				$("#konami").modal("show");
-			});
+		initialize: function(options){
+			options || (options = {});
+			this.storage = options.storage || {};
 
-			Backbone.on("regenerate", this.render, this);
-			Backbone.on("tick", this.onTick, this);
+			this.initializeChildren(options);
+			this.initializeDialogs(options);
+			this.initializeControls(options);
+
+			var _that = this;
+			var konami = new Konami(function(){
+				_that.$("#next").addClass("wobble animated");
+			});
+		},
+		initializeChildren: function(options){
+			var generationCounterView = new Application.GenerationCounterView();
+			this.children.push(generationCounterView);
+			generationCounterView.listenTo(this, "clear", generationCounterView.clear)
+
+			var worldView = new Application.WorldView(options);
+			this.children.push(worldView);
+			worldView.listenTo(this, "randomize", worldView.randomize);
+			worldView.listenTo(this, "clear", worldView.clear)
+		},
+		initializeDialogs: function(options){
+			var worldView = this.children[1] || {};
+
+			var saveView = new Application.SaveDialogView({
+				world: worldView.collection,
+				storage: this.storage
+			});
+			this.dialogs.push(saveView);
+			saveView.listenTo(this, "save", saveView.render);
+
+			var loadView = new Application.LoadDialogView({
+				collection: this.storage.items,
+				world: worldView.collection,
+				storage: this.storage
+			});
+			loadView.worldCollection = worldView.collection;
+			loadView.listenTo(this, "load", loadView.render)
+			this.dialogs.push(loadView);
+		},
+		initializeControls: function(options){
+			var controls = new Application.ControlsView();
+
+			_.each(["start", "stop", "clear", "save", "load", "randomize"], function(event){
+				controls.on(event, function(){ this.trigger(event); }, this);
+			}, this);
+
+			controls.on("konami", this._konami, this);
+			controls.on("gun", this.onGun, this);
+			controls.on("bigun", this.onBiGun, this);
+
+			this.children.push(controls);
 		},
 		render: function(){
-			this.$("#generationCount").html(this.generation);
+			_.each(this.children, function(child){
+				child.render();
+			});
 			return this;
 		},
-		onTick: function(){
-			this.generation++;
-			this.render();
-		},
-		onStart: function() {
-			this.$("#start, #next, #clear, #save, #load, #randomize").attr("disabled", "disabled");
-			this.$("#stop").removeAttr("disabled");
-			Backbone.trigger("startTimer");
-		},
-		onStop: function() {
-			this.$("#start, #next, #clear, #save, #load, #randomize").removeAttr("disabled");
-			this.$("#stop").attr("disabled", "disabled");
-			Backbone.trigger("stopTimer");
-		},
-		onNext: function(){
-			Backbone.trigger("tick");
-		},
-		onClear: function(){
-			this.generation = 0;
-			this.render();
-			Backbone.trigger("clear");
-		},
-		onSetTickFromSubmit: function(){
+		onSetTickFromSubmit: function(e){
 			var newSpeed = this.$("#tick").val();
-			Backbone.trigger("changeSpeed", newSpeed);
+			this.trigger("changeSpeed", newSpeed);
 			return false;
 		},
-		onSave: function(){
-			Backbone.trigger("save");
+		onGun: function(){
+			var worldView = this.children[1] || {};
+			this.storage.updateWorldFromSavedData(worldView.collection, Application.Data.Gun);
 		},
-		onLoad: function(){
-			Backbone.trigger("load");
+		onBiGun: function(){
+			var worldView = this.children[1] || {};
+			this.storage.updateWorldFromSavedData(worldView.collection, Application.Data.BiGun);
 		},
-		onRandomize: function(){
-			Backbone.trigger("randomize");
+		_konami: function(){
+			var konami = new Application.Konami();
+			konami.render();
 		}
 	});
-
-});
+})();

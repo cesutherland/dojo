@@ -17,10 +17,17 @@ if (typeof module !== "undefined" && module.exports) {
 
 	Application.WorldView = Backbone.View.extend({
 		el: "div.world",
-		initialize: function(){
+		initialize: function(options){
+			options || (options = {});
+
+			if(!options.collection){
+				this.collection = new Application.World(null, {
+					width: options.width,
+					height: options.height
+				});
+			}
 			//_.bindAll(this, "clearCells", "regenerate");
 			Backbone.on("tick", this.regenerate, this);
-			Backbone.on("clear", this.clearCells, this);
 		},
 		render: function(){
 			this.collection.each(function(cell){
@@ -36,10 +43,11 @@ if (typeof module !== "undefined" && module.exports) {
 			}, this);
 			Backbone.trigger("regenerate");
 		},
-		clearCells: function(){
-			this.collection.each(function(cell){
-				cell.set("alive", false);
-			}, this);
+		clear: function(){
+			this.collection.clear();
+		},
+		randomize: function(){
+			this.collection.randomize();
 		}
 	});
 
