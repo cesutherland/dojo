@@ -1,17 +1,17 @@
 var Application = Application || {};
 
-if (typeof module !== "undefined" && module.exports) {
-	var Backbone = Backbone || require("backbone");
+if (typeof require === "function" && typeof exports === "object" && typeof module === "object"){
+	module.exports = Application
+	Application = global.Application
 
-	Application = require("../../base/dialog");
-
-	module.exports = Application;
+	FileReader = function(){}
+	FileReader.prototype.readAsText = function(){}
 }
 
 (function(){
 	"use strict";
 
-	Application.LoadDialogView = Application.Dialog.extend({
+	Application.LoadDialogView = Backbone.Dialog.extend({
 		el: "#loadDialog",
 		events: {
 			"dragenter div.well": "onDragEnter",
@@ -21,11 +21,12 @@ if (typeof module !== "undefined" && module.exports) {
 			"click #upload": "onUpload"
 		},
 		initialize: function(options) {
-			Application.Dialog.prototype.initialize.apply(this, arguments);
+			Backbone.Dialog.prototype.initialize.apply(this, arguments);
 			if(this.collection) this.collection.on("remove", this.render, this);
 		},
 		render: function(){
 			this.$("table tbody").empty();
+
 			this.collection.each(function(storageItem){
 				var itemView = new Application.StorageItemView({ model: storageItem});
 
